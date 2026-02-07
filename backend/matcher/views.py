@@ -1,26 +1,20 @@
-from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from .services import compute_match_score
+from .services import match_resume_to_job
 
-@csrf_exempt
-def match_resume(request):
-    if request.method != "POST":
-        return JsonResponse(
-            {"error": "POST request required"},
+@api_view(["POST"])
+def resume_matcher(request):
+    resume_text = request.data.get("resume_text")
+    job_description = request.data.get("job_description")
+
+    if not resume_text or not job_description:
+        return Response(
+            {"error": "resume_text and job_description are required"},
             status=400
         )
 
-    resume_text = request.POST.get("resume", "")
-    job_text = request.POST.get("job", "")
+    score = match_resume_to_job(resume_text, job_description)
 
-    score = compute_match_score(resume_text, job_text)
-
-    return JsonResponse({
-        "score": score,
-        "status": "success",
-        "note": "Dummy scoring logic (no ML model yet)"
+    return Response({
+        "similarity_score": score
     })
