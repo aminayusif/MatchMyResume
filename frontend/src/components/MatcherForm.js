@@ -3,7 +3,7 @@ import { useState } from "react";
 function MatcherForm() {
   const [resumeText, setResumeText] = useState("");
   const [jobText, setJobText] = useState("");
-  const [score, setScore] = useState(null);
+  const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -25,19 +25,13 @@ function MatcherForm() {
       });
 
       const data = await response.json();
-      setScore(data.similarity_score);
+      setResult(data); // ✅ store full response
     } catch (err) {
       setError("Failed to connect to server");
     } finally {
       setLoading(false);
     }
   };
-const interpretScore = (score) => {
-  if (score >= 0.75) return "Strong match ✅";
-  if (score >= 0.5) return "Moderate match ⚠️";
-  if (score >= 0.3) return "Weak match ❌";
-  return "Poor match ❌❌";
-};
 
   return (
     <div>
@@ -63,16 +57,29 @@ const interpretScore = (score) => {
         </button>
       </form>
 
-      {score !== null && (
-  <div>
-    <p>
-      Similarity Score: <strong>{score.toFixed(2)}</strong>
-    </p>
-    <p>
-      Interpretation: <strong>{interpretScore(score)}</strong>
-    </p>
-  </div>
-)}
+      {result && (
+        <div>
+          <h3>
+            Similarity Score: {result.similarity_score.toFixed(2)}
+          </h3>
+
+          <p><strong>{result.match_level}</strong></p>
+
+          <h4>Matched Skills</h4>
+          <ul>
+            {result.matched_keywords.map((skill, i) => (
+              <li key={i} style={{ color: "green" }}>{skill}</li>
+            ))}
+          </ul>
+
+          <h4>Missing Skills</h4>
+          <ul>
+            {result.missing_keywords.map((skill, i) => (
+              <li key={i} style={{ color: "red" }}>{skill}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>

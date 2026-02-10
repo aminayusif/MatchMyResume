@@ -13,8 +13,5 @@ def resume_matcher(request):
             status=400
         )
 
-    score = match_resume_to_job(resume_text, job_description)
-
-    return Response({
-        "similarity_score": score
-    })
+    result = match_resume_to_job(resume_text, job_description)
+    return Response(result)
