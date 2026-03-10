@@ -1,4 +1,5 @@
 from pathlib import Path
+from django.conf import settings
 import joblib
 from sklearn.metrics.pairwise import cosine_similarity
 import re
@@ -15,7 +16,9 @@ def clean_text(text):
 
 # ------------------ correct BASE DIR ------------------
 # services.py -> matcher -> backend -> project root
-BASE_DIR = Path(__file__).resolve().parents[2]
+
+#BASE_DIR = Path(__file__).resolve().parents[1]
+BASE_DIR = settings.BASE_DIR
 
 VECTORIZER_PATH = BASE_DIR / "machine-learning" / "artifacts" / "tfidf_vectorizer.pkl"
 
